@@ -1114,7 +1114,9 @@ SEAS.forEach(t=>{const b=document.createElement('button');b.textContent=t;
 /* 키오스크 연결 · 60초 동안 손대지 않으면 처음 모습으로 */
 let lastAct=performance.now(),homed=false;
 function ping(){lastAct=performance.now();homed=false;if(parent!==window)parent.postMessage({lego:'active'},'*')}
-function closeMe(){if(parent!==window)parent.postMessage({lego:'close'},'*');else location.href='index5.html'}
+const EMBED=parent!==window;   /* 키오스크 iframe 안일 때만 true — 웹에서 단독으로 열면 false */
+function closeMe(){if(EMBED)parent.postMessage({lego:'close'},'*')}
+if(!EMBED){const cb=document.querySelector('.reach .btn[onclick="closeMe()"]');if(cb)cb.style.visibility='hidden'}   /* 단독: 닫기 버튼 숨김(자리는 유지해 계절 버튼이 가운데에 있게) */
 
 window.addEventListener('resize',layout);
 setSeason(SEA);buildKids();layout();
@@ -1123,7 +1125,7 @@ function loop(now){
   requestAnimationFrame(loop);
   const dt=Math.min(.06,(now-last)/1000);last=now;
   if(anim){for(const k of ['z','cx','cy'])V[k]+=(anim[k]-V[k])*.18;if(Math.abs(anim.z-V.z)<.002&&Math.abs(anim.cx-V.cx)<.5)anim=null;layout()}
-  if(now-lastAct>60000&&!homed){homed=true;animTo(HOME.z,HOME.cx,HOME.cy);kids.forEach(k=>{if(k.bub){k.bub.remove();k.bub=null}});if(cat&&cat.bub){cat.bub.remove();cat.bub=null}if(cat&&cat.state==='gone')cat.t=0;got.clear();
+  if(EMBED&&now-lastAct>60000&&!homed){homed=true;animTo(HOME.z,HOME.cx,HOME.cy);kids.forEach(k=>{if(k.bub){k.bub.remove();k.bub=null}});if(cat&&cat.bub){cat.bub.remove();cat.bub=null}if(cat&&cat.state==='gone')cat.t=0;got.clear();
     if(SEA!==todaySeason())setSeason(todaySeason())}   /* 앞 관람객이 고른 계절도 오늘 계절로 (2026-10-25) */
   stepKids(dt);stepCat(dt);stepCritters(dt);stepOverlay(dt);
 }
